@@ -1202,6 +1202,18 @@ body {
         <span class="icon">⚡</span>
         <span class="nav-text">Live Feed</span>
       </div>
+      <div class="nav-item" data-page="projects">
+        <span class="icon">PR</span>
+        <span class="nav-text">Projects</span>
+      </div>
+      <div class="nav-item" data-page="skills">
+        <span class="icon">SK</span>
+        <span class="nav-text">Skills</span>
+      </div>
+      <div class="nav-item" data-page="messages">
+        <span class="icon">CH</span>
+        <span class="nav-text">Messaging</span>
+      </div>
     </nav>
   </aside>
 
@@ -1720,7 +1732,111 @@ body {
         <div class="feed-stream" id="feedStream"><div style="text-align:center;padding:40px;color:var(--text-muted);font-size:14px;">Click <b>▶ Start</b> to begin streaming</div></div>
       </div>
     </div>
+    <div class="page" id="projects">
+      <div class="page-header">
+        <h1 class="page-title">Projects</h1>
+        <p class="page-subtitle">Live list of workspace projects and git activity</p>
+      </div>
 
+      <div class="grid grid-3 mb-24">
+        <div class="card">
+          <div class="metric accent">
+            <div class="metric-value" id="projectsTotal">0</div>
+            <div class="metric-label">Total Projects</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="metric">
+            <div class="metric-value" id="projectsActive">0</div>
+            <div class="metric-label">With Local Changes</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="metric">
+            <div class="metric-value mono" style="font-size:18px;" id="projectsUpdatedAt">--</div>
+            <div class="metric-label">Last Refresh</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:12px;">
+          <input id="projectsSearch" type="text" placeholder="Search projects..." style="flex:1;min-width:220px;padding:8px 10px;background:var(--bg-tertiary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);">
+          <button onclick="refreshProjects(true)" style="padding:8px 14px;background:var(--bg-tertiary);color:var(--text-primary);border:1px solid var(--border);border-radius:8px;cursor:pointer;">Refresh</button>
+        </div>
+        <div id="projectsList"></div>
+      </div>
+    </div>
+
+    <div class="page" id="skills">
+      <div class="page-header">
+        <h1 class="page-title">Skills</h1>
+        <p class="page-subtitle">Base and external Codex skills discovered on disk</p>
+      </div>
+
+      <div class="grid grid-2 mb-24">
+        <div class="card">
+          <div class="metric accent">
+            <div class="metric-value" id="baseSkillsCount">0</div>
+            <div class="metric-label">Base Skills</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="metric">
+            <div class="metric-value" id="externalSkillsCount">0</div>
+            <div class="metric-label">External Skills</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-2">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <h3 class="card-title" style="margin:0;">Base Skills</h3>
+            <span style="font-size:11px;color:var(--text-muted);" id="baseSkillsRoot">--</span>
+          </div>
+          <div id="baseSkillsList"></div>
+        </div>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <h3 class="card-title" style="margin:0;">External Skills</h3>
+            <span style="font-size:11px;color:var(--text-muted);" id="externalSkillsRoot">--</span>
+          </div>
+          <div id="externalSkillsList"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="messages">
+      <div class="page-header">
+        <h1 class="page-title">Messaging</h1>
+        <p class="page-subtitle">Chat with agent bridge, send text, images, and files</p>
+      </div>
+
+      <div class="card mb-24" style="padding:14px 20px;">
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+          <span style="font-size:13px;color:var(--text-secondary);">Bridge:</span>
+          <span id="agentBridgeStatus" class="mono" style="font-size:12px;color:var(--yellow);">Unknown</span>
+          <span style="font-size:12px;color:var(--text-muted);">Last sync:</span>
+          <span id="agentChatUpdatedAt" class="mono" style="font-size:12px;color:var(--text-secondary);">--</span>
+          <button onclick="refreshAgentChat(true)" style="margin-left:auto;padding:6px 12px;background:var(--bg-tertiary);color:var(--text-primary);border:1px solid var(--border);border-radius:8px;cursor:pointer;">Refresh</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div id="agentChatMessages" style="max-height:460px;overflow-y:auto;padding-right:6px;"></div>
+        <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px;">
+          <textarea id="agentChatInput" placeholder="Type message for the agent..." style="width:100%;min-height:90px;resize:vertical;padding:10px;background:var(--bg-primary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;"></textarea>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px;">
+            <button onclick="openAgentFilePicker()" style="padding:8px 14px;background:var(--bg-tertiary);color:var(--text-primary);border:1px solid var(--border);border-radius:8px;cursor:pointer;">Attach Files</button>
+            <input id="agentChatFiles" type="file" multiple style="display:none;">
+            <div id="agentChatSelected" style="display:flex;gap:8px;flex-wrap:wrap;flex:1;"></div>
+            <button id="agentChatSendBtn" onclick="sendAgentChatMessage()" style="padding:8px 16px;background:linear-gradient(135deg,var(--accent),var(--purple));color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;">Send</button>
+          </div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:8px;">Supports images and files. Max 8 attachments, 8MB each.</div>
+        </div>
+      </div>
+    </div>
     <div class="page" id="memory">
       <div class="page-header">
         <h1 class="page-title">Memory</h1>
@@ -1784,6 +1900,9 @@ body {
     <div class="shortcut-item"><span>Switch to Costs</span><span class="shortcut-key">3</span></div>
     <div class="shortcut-item"><span>Switch to Rate Limits</span><span class="shortcut-key">4</span></div>
     <div class="shortcut-item"><span>Switch to Live Feed</span><span class="shortcut-key">5</span></div>
+    <div class="shortcut-item"><span>Switch to Projects</span><span class="shortcut-key">6</span></div>
+    <div class="shortcut-item"><span>Switch to Skills</span><span class="shortcut-key">7</span></div>
+    <div class="shortcut-item"><span>Switch to Messaging</span><span class="shortcut-key">8</span></div>
     <div class="shortcut-item"><span>Pause/Resume Feed</span><span class="shortcut-key">Space</span></div>
     <div class="shortcut-item"><span>Focus Search</span><span class="shortcut-key">/</span></div>
     <div class="shortcut-item"><span>Close Modals</span><span class="shortcut-key">Esc</span></div>
@@ -1840,6 +1959,11 @@ let sortBy = 'updated';
 let sortDir = 'desc';
 let selectedSessions = new Set();
 let notificationsEnabled = false;
+let projectsData = { projects: [] };
+let skillsData = { base: [], external: [] };
+let agentChatData = { messages: [], bridgeConfigured: false };
+let pendingAgentFiles = [];
+let sendingAgentMessage = false;
 
 document.querySelectorAll('.nav-item').forEach(item => {
   item.addEventListener('click', () => {
@@ -1858,6 +1982,12 @@ document.querySelectorAll('.nav-item').forEach(item => {
     
     if (page === 'memory') {
       fetchMemoryFiles();
+    } else if (page === 'projects') {
+      refreshProjects();
+    } else if (page === 'skills') {
+      refreshSkills();
+    } else if (page === 'messages') {
+      refreshAgentChat();
     }
   });
 });
@@ -1868,6 +1998,34 @@ document.querySelectorAll('.view-all-link').forEach(link => {
     const page = link.dataset.page;
     document.querySelector(`[data-page="${page}"]`).click();
   });
+});
+
+document.getElementById('projectsSearch')?.addEventListener('input', () => renderProjects());
+
+document.getElementById('agentChatFiles')?.addEventListener('change', (event) => {
+  const selected = Array.from(event.target.files || []);
+  if (!selected.length) return;
+
+  for (const file of selected) {
+    if (pendingAgentFiles.length >= 8) {
+      showToast('Max 8 attachments allowed', 'warning');
+      break;
+    }
+    if ((file.size || 0) > 8 * 1024 * 1024) {
+      showToast(`${file.name} exceeds 8MB`, 'warning');
+      continue;
+    }
+    pendingAgentFiles.push(file);
+  }
+  event.target.value = '';
+  renderPendingAgentFiles();
+});
+
+document.getElementById('agentChatInput')?.addEventListener('keydown', (event) => {
+  if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+    event.preventDefault();
+    sendAgentChatMessage();
+  }
 });
 
 async function fetchData() {
@@ -3163,6 +3321,295 @@ window.loadMemoryFile = async function(name) {
   }
 };
 
+function escapeHtml(value) {
+  return (value || '')
+    .toString()
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function formatBytes(bytes) {
+  if (!bytes || bytes <= 0) return '0 B';
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function formatAgoFromTimestamp(ts) {
+  const age = Date.now() - (ts || 0);
+  if (age < 60000) return 'just now';
+  if (age < 3600000) return Math.round(age / 60000) + 'm ago';
+  if (age < 86400000) return Math.round(age / 3600000) + 'h ago';
+  return Math.round(age / 86400000) + 'd ago';
+}
+
+function renderProjects() {
+  const list = Array.isArray(projectsData.projects) ? projectsData.projects : [];
+  const search = (document.getElementById('projectsSearch')?.value || '').trim().toLowerCase();
+  const filtered = list.filter(p => {
+    if (!search) return true;
+    return [p.name, p.path, p.branch, (p.stack || []).join(' ')].join(' ').toLowerCase().includes(search);
+  });
+
+  const totalEl = document.getElementById('projectsTotal');
+  const activeEl = document.getElementById('projectsActive');
+  const updatedEl = document.getElementById('projectsUpdatedAt');
+  if (totalEl) totalEl.textContent = (projectsData.total || list.length || 0).toString();
+  if (activeEl) activeEl.textContent = (projectsData.active || 0).toString();
+  if (updatedEl) {
+    updatedEl.textContent = projectsData.updatedAt
+      ? new Date(projectsData.updatedAt).toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+      : '--';
+  }
+
+  const el = document.getElementById('projectsList');
+  if (!el) return;
+  el.innerHTML = filtered.map(p => {
+    const commit = p.lastCommit
+      ? `<div style="font-size:11px;color:var(--text-muted);margin-top:6px;">${escapeHtml(p.lastCommit.hash)} · ${escapeHtml(p.lastCommit.message || '')}</div>`
+      : '<div style="font-size:11px;color:var(--text-muted);margin-top:6px;">No commits yet</div>';
+    const stack = (p.stack || []).length ? `<span style="font-size:10px;color:var(--text-muted);">${escapeHtml(p.stack.join(', '))}</span>` : '';
+    const dirty = p.dirtyFiles > 0
+      ? `<span style="font-size:11px;color:var(--yellow);">${p.dirtyFiles} changed</span>`
+      : '<span style="font-size:11px;color:var(--green);">clean</span>';
+    const branch = escapeHtml(p.branch || '-');
+    const label = escapeHtml(p.name || p.path || 'project');
+    const relPath = escapeHtml(p.path || '-');
+    const ago = formatAgoFromTimestamp(p.lastActivityAt || p.modifiedAt || 0);
+    return `<div style="padding:12px 0;border-bottom:1px solid var(--border);">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+        <div style="font-weight:600;font-size:14px;">${label}</div>
+        <div style="font-size:11px;color:var(--text-muted);">${ago}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:6px;">
+        <span class="mono" style="font-size:11px;color:var(--accent);">${branch}</span>
+        ${dirty}
+        ${stack}
+      </div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">${relPath}</div>
+      ${commit}
+    </div>`;
+  }).join('') || '<div class="empty-state-text">No projects found</div>';
+}
+
+async function refreshProjects(showToastOnSuccess) {
+  try {
+    const res = await fetch('/api/projects');
+    const data = await res.json();
+    projectsData = data || { projects: [] };
+    renderProjects();
+    if (showToastOnSuccess) showToast('Projects refreshed', 'success', 1800);
+  } catch (e) {
+    if (showToastOnSuccess) showToast('Failed to refresh projects: ' + e.message, 'warning');
+  }
+}
+
+function renderSkillsList(targetId, list) {
+  const el = document.getElementById(targetId);
+  if (!el) return;
+  el.innerHTML = (list || []).map(skill => {
+    const name = escapeHtml(skill.name || skill.id || 'skill');
+    const desc = escapeHtml(skill.description || 'No description');
+    return `<div style="padding:10px 0;border-bottom:1px solid var(--border);">
+      <div style="font-size:13px;font-weight:600;margin-bottom:4px;">${name}</div>
+      <div style="font-size:12px;color:var(--text-muted);line-height:1.4;">${desc}</div>
+    </div>`;
+  }).join('') || '<div class="empty-state-text">No skills found</div>';
+}
+
+async function refreshSkills(showToastOnSuccess) {
+  try {
+    const res = await fetch('/api/skills');
+    const data = await res.json();
+    skillsData = data || { base: [], external: [] };
+
+    document.getElementById('baseSkillsCount').textContent = (skillsData.base || []).length;
+    document.getElementById('externalSkillsCount').textContent = (skillsData.external || []).length;
+    document.getElementById('baseSkillsRoot').textContent = skillsData.baseRoot || '--';
+    document.getElementById('externalSkillsRoot').textContent = skillsData.externalRoot || '--';
+
+    renderSkillsList('baseSkillsList', skillsData.base || []);
+    renderSkillsList('externalSkillsList', skillsData.external || []);
+    if (showToastOnSuccess) showToast('Skills refreshed', 'success', 1800);
+  } catch (e) {
+    if (showToastOnSuccess) showToast('Failed to refresh skills: ' + e.message, 'warning');
+  }
+}
+
+function renderPendingAgentFiles() {
+  const holder = document.getElementById('agentChatSelected');
+  if (!holder) return;
+  holder.innerHTML = pendingAgentFiles.map((f, idx) => {
+    const safe = escapeHtml(f.name || 'file');
+    const size = formatBytes(f.size || 0);
+    return `<div style="display:flex;align-items:center;gap:8px;padding:5px 8px;background:var(--bg-tertiary);border:1px solid var(--border);border-radius:999px;font-size:11px;">
+      <span class="mono">${safe}</span>
+      <span style="color:var(--text-muted);">${size}</span>
+      <button onclick="removePendingAgentFile(${idx})" style="background:none;border:none;color:var(--text-muted);cursor:pointer;padding:0 2px;">x</button>
+    </div>`;
+  }).join('');
+}
+
+function removePendingAgentFile(index) {
+  pendingAgentFiles = pendingAgentFiles.filter((_, i) => i !== index);
+  renderPendingAgentFiles();
+}
+
+window.removePendingAgentFile = removePendingAgentFile;
+
+function openAgentFilePicker() {
+  const input = document.getElementById('agentChatFiles');
+  if (input) input.click();
+}
+
+window.openAgentFilePicker = openAgentFilePicker;
+
+function isImageAttachment(file) {
+  return (file.type || '').toLowerCase().startsWith('image/');
+}
+
+function renderAgentChat() {
+  const data = agentChatData || {};
+  const messages = Array.isArray(data.messages) ? data.messages : [];
+  const list = document.getElementById('agentChatMessages');
+  if (!list) return;
+
+  const wasNearBottom = (list.scrollHeight - list.scrollTop - list.clientHeight) < 50;
+
+  if (messages.length === 0) {
+    list.innerHTML = '<div class="empty-state-text" style="padding:16px 0;">No messages yet</div>';
+  } else {
+    list.innerHTML = messages.map(msg => {
+      const role = msg.role || 'system';
+      const roleColor = role === 'user' ? 'var(--blue)' : role === 'assistant' ? 'var(--green)' : 'var(--yellow)';
+      const align = role === 'user' ? 'flex-end' : 'flex-start';
+      const bubbleBg = role === 'user' ? 'rgba(59,130,246,0.12)' : role === 'assistant' ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)';
+      const content = escapeHtml(msg.text || '');
+      const time = msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '--';
+      const attachments = (msg.attachments || []).map(file => {
+        const safeName = escapeHtml(file.name || 'attachment');
+        const safeUrl = (file.url || '#').replace(/"/g, '%22');
+        const size = formatBytes(file.size || 0);
+        const preview = isImageAttachment(file) ? `<div style="margin-top:8px;"><img src="${safeUrl}" alt="${safeName}" style="max-width:220px;max-height:160px;border-radius:8px;border:1px solid var(--border);"></div>` : '';
+        return `<div style="margin-top:8px;">
+          <a href="${safeUrl}" target="_blank" rel="noreferrer" class="mono" style="font-size:11px;color:var(--accent);text-decoration:none;">${safeName}</a>
+          <span style="font-size:11px;color:var(--text-muted);margin-left:6px;">${size}</span>
+          ${preview}
+        </div>`;
+      }).join('');
+      return `<div style="display:flex;justify-content:${align};margin-bottom:12px;">
+        <div style="max-width:82%;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:${bubbleBg};">
+          <div style="display:flex;justify-content:space-between;gap:12px;margin-bottom:6px;">
+            <span style="font-size:11px;color:${roleColor};font-weight:700;text-transform:uppercase;">${escapeHtml(role)}</span>
+            <span style="font-size:10px;color:var(--text-muted);">${time}</span>
+          </div>
+          <div style="white-space:pre-wrap;word-break:break-word;font-size:13px;line-height:1.45;">${content || '<span style="color:var(--text-muted);">(attachment only)</span>'}</div>
+          ${attachments}
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  const bridgeEl = document.getElementById('agentBridgeStatus');
+  if (bridgeEl) {
+    if (data.bridgeConfigured) {
+      bridgeEl.style.color = 'var(--green)';
+      bridgeEl.textContent = 'Configured';
+    } else {
+      bridgeEl.style.color = 'var(--yellow)';
+      bridgeEl.textContent = 'Not configured (message store only)';
+    }
+  }
+  const syncEl = document.getElementById('agentChatUpdatedAt');
+  if (syncEl) {
+    syncEl.textContent = data.updatedAt
+      ? new Date(data.updatedAt).toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+      : '--';
+  }
+
+  if (wasNearBottom) list.scrollTop = list.scrollHeight;
+}
+
+async function refreshAgentChat(showToastOnSuccess) {
+  try {
+    const res = await fetch('/api/agent-chat');
+    const data = await res.json();
+    agentChatData = data || { messages: [], bridgeConfigured: false };
+    renderAgentChat();
+    if (showToastOnSuccess) showToast('Messages refreshed', 'success', 1600);
+  } catch (e) {
+    if (showToastOnSuccess) showToast('Failed to refresh messages: ' + e.message, 'warning');
+  }
+}
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = (reader.result || '').toString();
+      const base64 = result.includes(',') ? result.split(',').pop() : result;
+      resolve({
+        name: file.name,
+        type: file.type || 'application/octet-stream',
+        size: file.size || 0,
+        data: base64 || ''
+      });
+    };
+    reader.onerror = () => reject(new Error(`Failed to read ${file.name}`));
+    reader.readAsDataURL(file);
+  });
+}
+
+async function sendAgentChatMessage() {
+  if (sendingAgentMessage) return;
+  const input = document.getElementById('agentChatInput');
+  const sendBtn = document.getElementById('agentChatSendBtn');
+  const text = (input?.value || '').trim();
+
+  if (!text && pendingAgentFiles.length === 0) {
+    showToast('Enter a message or attach files first', 'warning');
+    return;
+  }
+
+  sendingAgentMessage = true;
+  if (sendBtn) {
+    sendBtn.disabled = true;
+    sendBtn.textContent = 'Sending...';
+    sendBtn.style.opacity = '0.7';
+  }
+
+  try {
+    const files = await Promise.all(pendingAgentFiles.map(fileToBase64));
+    const res = await fetch('/api/agent-chat/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, files })
+    });
+    const data = await res.json();
+    if (!res.ok || data.error) throw new Error(data.error || 'Send failed');
+
+    if (input) input.value = '';
+    pendingAgentFiles = [];
+    renderPendingAgentFiles();
+    await refreshAgentChat(false);
+
+    if (data.bridgeError) showToast('Message sent, bridge error: ' + data.bridgeError, 'warning');
+    else showToast('Message sent', 'success', 1600);
+  } catch (e) {
+    showToast('Failed to send message: ' + e.message, 'warning');
+  } finally {
+    sendingAgentMessage = false;
+    if (sendBtn) {
+      sendBtn.disabled = false;
+      sendBtn.textContent = 'Send';
+      sendBtn.style.opacity = '1';
+    }
+  }
+}
+
 function formatTimeAgo(ms, future) {
   if (ms < 60000) return (future ? 'in ' : '') + 'less than a minute';
   if (ms < 3600000) return (future ? 'in ' : '') + Math.round(ms/60000) + 'm';
@@ -3174,8 +3621,8 @@ function formatTimeAgo(ms, future) {
 document.addEventListener('keydown', (e) => {
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
   
-  const pages = ['overview', 'sessions', 'costs', 'limits', 'feed'];
-  if (e.key >= '1' && e.key <= '5') {
+  const pages = ['overview', 'sessions', 'costs', 'limits', 'feed', 'projects', 'skills', 'messages'];
+  if (e.key >= '1' && e.key <= '8') {
     const idx = parseInt(e.key) - 1;
     if (pages[idx]) {
       document.querySelector(`[data-page="${pages[idx]}"]`).click();
@@ -3193,6 +3640,10 @@ document.addEventListener('keydown', (e) => {
       document.getElementById('sessionSearch').focus();
     } else if (activePage === 'feed') {
       document.getElementById('feedSearchInput').focus();
+    } else if (activePage === 'projects') {
+      document.getElementById('projectsSearch').focus();
+    } else if (activePage === 'messages') {
+      document.getElementById('agentChatInput').focus();
     }
   } else if (e.key === '?') {
     e.preventDefault();
@@ -3380,6 +3831,10 @@ fetchData();
 fetchNewData();
 fetchHealthHistory();
 fetchMemoryFiles();
+refreshProjects();
+refreshSkills();
+refreshAgentChat();
+renderPendingAgentFiles();
 
 // Restore auto-refresh state
 if (localStorage.getItem('usageAutoRefresh') === '1') {
@@ -3390,6 +3845,9 @@ setInterval(fetchData, 5000);
 setInterval(fetchNewData, 15000);
 setInterval(fetchHealthHistory, 60000);
 setInterval(fetchMemoryFiles, 30000);
+setInterval(refreshProjects, 20000);
+setInterval(refreshSkills, 45000);
+setInterval(refreshAgentChat, 5000);
 
 function openSessionDetail(key) {
   const s = sessions.find(x => x.key === key);
@@ -3791,3 +4249,6 @@ setTimeout(() => {
 </script>
 </body>
 </html>
+
+
+
